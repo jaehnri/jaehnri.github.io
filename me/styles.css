@@ -2,22 +2,18 @@ body {
   background-color: white;
   font-family: lucida,helvetica,sans-serif;
   display: flex; /* Enable flexbox for the body */
+  flex-direction: column; /* Stack children vertically */
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   margin: 0;
 }
-
-blockquote {
-  /* No specific width set here, it will shrink-wrap its content */
+/* Styles for the navigation container and its content */
+#nav-container {
+  display: flex;
+  justify-content: center; /* Center the nav div within its container */
 }
-  
 
-#content {
-  text-align: left; /* Align the text content to the left */
-  margin: 0 auto;
-}
-  
 #nav {
   display: flex; /* Add this line to make #nav a flex container */
   gap: 30px;
@@ -32,6 +28,16 @@ blockquote {
   
 #nav a:hover {
   color: #555; /* Slightly lighter color on hover */
+}
+
+#content {
+  text-align: left; /* Align the text content to the left */
+  margin: 0 auto;
+}
+
+#now-playing-container {
+  display: flex;
+  justify-content: center; /* Center the now-playing div */
 }
 
 #now-playing {
