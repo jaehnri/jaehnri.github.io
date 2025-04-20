@@ -4,12 +4,19 @@
 <link rel="icon" href="https://github.com/jaehnri.png">
 <title>J J</title>
 <style type="text/css">
-<!--
-body {
- background-color: white;
- font-family: lucida,helvetica,sans-serif
+#now-playing {
+  margin-top: 20px;
+  font-style: italic;
+  text-align: center; /* Center the content within the now-playing div */
 }
--->
+#progress-bar {
+  font-family: monospace; /* Ensures consistent character width */
+  margin-bottom: 5px;
+  display: inline-block; /* Allows centering */
+}
+#song-info {
+  display: block; /* Ensures it's on a new line */
+}
 </style>
 </head>
 <body>
@@ -27,8 +34,8 @@ body {
 <b>Experience:</b>
 <ul>
  <li> <b>work:</b>
-   google; 
-   previously at ifood, 
+   google;
+   previously at ifood,
    <a href="https://github.com/rancher/opni/pulls?q=author%3Ajaehnri"><b>suse rancher</b></a>,
    <a href="https://mentorship.lfx.linuxfoundation.org/project/dd10bf62-53d1-4a96-bea2-65bbb78bd10e"><b>lfx</b></a>
  </li>
@@ -45,7 +52,7 @@ body {
 <ul>
    <li>
      <b>kubernetes: </b>
-     <a href="https://github.com/kubernetes/kubernetes/pulls?q=author%3Ajaehnri">kubernetes</a>, 
+     <a href="https://github.com/kubernetes/kubernetes/pulls?q=author%3Ajaehnri">kubernetes</a>,
      <a href="https://github.com/kubernetes/ingress-nginx/pulls?q=author%3Ajaehnri"> ingress-nginx</a>,
      <a href="https://github.com/kubernetes/kubernetes/issues?q=author%3Ajaehnri+label%3Aarea%2Fkubectl"> kubectl</a>,
      <a href="https://github.com/kubernetes-sigs/kpng/pulls?q=author%3Ajaehnri"> kpng</a>
@@ -73,6 +80,53 @@ body {
  <li>linkedin: <a href="https://www.linkedin.com/in/jaehnri/">linkedin.com/in/jaehnri</a> </li>
  <li>op.gg: <a href="https://www.op.gg/summoners/br/JJ-BR1">op.gg/summoners/br/JJ-BR1</a> </li>
 </ul>
+
+<div id="now-playing">
+  <div id="progress-bar"></div>
+  <div id="song-info"></div>
+</div>
+
+<script>
+  function fetchNowPlaying() {
+    fetch('http://localhost:8080/now-playing')
+      .then(response => response.json())
+      .then(data => {
+        const progressBarDiv = document.getElementById('progress-bar');
+        const songInfoDiv = document.getElementById('song-info');
+
+        if (data.is_playing) {
+          const progress = data.progress_ms;
+          const duration = data.song_duration_ms;
+
+          // Determine the length of the progress bar (adjust as needed)
+          const progressBarLength = 100;
+
+          const playedRatio = progress / duration;
+          const playedChars = Math.round(playedRatio * progressBarLength);
+          const remainingChars = progressBarLength - playedChars;
+
+          const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
+          progressBarDiv.textContent = `[${progressBar}]`;
+          songInfoDiv.textContent = `${data.artist} - ${data.song}`;
+        } else {
+          progressBarDiv.textContent = '';
+          songInfoDiv.textContent = 'Not currently playing anything.';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching now playing data:', error);
+        const nowPlayingDiv = document.getElementById('now-playing');
+        nowPlayingDiv.textContent = 'Could not retrieve current song information.';
+      });
+  }
+
+  // Fetch the data when the page loads
+  fetchNowPlaying();
+
+  // Optionally, update the information periodically
+  setInterval(fetchNowPlaying, 2000); // Updated to 2 seconds for smoother updates
+</script>
+
 </blockquote>
 </body>
 </html>
