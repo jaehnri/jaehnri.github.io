@@ -109,14 +109,10 @@
         } else {
           const progressBarDiv = document.getElementById('progress-bar');
           const songInfoDiv = document.getElementById('song-info');
-          // progressBarDiv.textContent = '';
-          // songInfoDiv.textContent = 'Not currently playing anything.';
         }
       })
       .catch(error => {
         console.error('Error fetching now playing data:', error);
-        // const nowPlayingDiv = document.getElementById('now-playing');
-        // nowPlayingDiv.textContent = 'Could not retrieve current song information.';
         clearInterval(progressBarInterval); // Stop updates on error
       });
   }
