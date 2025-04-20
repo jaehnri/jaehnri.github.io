@@ -105,23 +105,18 @@
         // Clear any existing interval and start a new one for visual updates
         clearInterval(progressBarInterval);
         if (currentTrackData && currentTrackData.is_playing) {
-          progressBarInterval = setInterval(incrementProgressBar, 1000); // Update every 1 second
+          progressBarInterval = setInterval(incrementProgressBar, 500); // Update every 0.5 seconds
         } else {
           const progressBarDiv = document.getElementById('progress-bar');
           const songInfoDiv = document.getElementById('song-info');
-          progressBarDiv.textContent = '';
-          songInfoDiv.textContent = 'Not currently playing anything.';
-        }
-
-        // If the song just started playing after being stopped, or a new song started
-        if (!wasPlaying && currentTrackData.is_playing) {
-          // No need to immediately refetch, the regular interval will handle it
+          // progressBarDiv.textContent = '';
+          // songInfoDiv.textContent = 'Not currently playing anything.';
         }
       })
       .catch(error => {
         console.error('Error fetching now playing data:', error);
-        const nowPlayingDiv = document.getElementById('now-playing');
-        nowPlayingDiv.textContent = 'Could not retrieve current song information.';
+        // const nowPlayingDiv = document.getElementById('now-playing');
+        // nowPlayingDiv.textContent = 'Could not retrieve current song information.';
         clearInterval(progressBarInterval); // Stop updates on error
       });
   }
@@ -152,7 +147,7 @@
 
   function incrementProgressBar() {
     if (currentTrackData && currentTrackData.is_playing) {
-      currentTrackData.progress_ms += 1000; // Increment by 1 second (1000 ms)
+      currentTrackData.progress_ms += 500; // Increment by 0.5 second (500 ms)
       updateProgressBar();
       if (currentTrackData.progress_ms >= currentTrackData.song_duration_ms) {
         // Song has likely ended, immediately call the server
