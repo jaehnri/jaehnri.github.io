@@ -4,12 +4,23 @@
 <link rel="icon" href="https://github.com/jaehnri.png">
 <title>J J</title>
 <style type="text/css">
-<!--
 body {
- background-color: white;
- font-family: lucida,helvetica,sans-serif
+  background-color: white;
+  font-family: lucida,helvetica,sans-serif
 }
--->
+#now-playing {
+  margin-top: 20px;
+  font-style: italic;
+  text-align: center;
+}
+#progress-bar {
+  font-family: monospace;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+#song-info {
+  display: block;
+}
 </style>
 </head>
 <body>
@@ -27,8 +38,8 @@ body {
 <b>Experience:</b>
 <ul>
  <li> <b>work:</b>
-   google; 
-   previously at ifood, 
+   google;
+   previously at ifood,
    <a href="https://github.com/rancher/opni/pulls?q=author%3Ajaehnri"><b>suse rancher</b></a>,
    <a href="https://mentorship.lfx.linuxfoundation.org/project/dd10bf62-53d1-4a96-bea2-65bbb78bd10e"><b>lfx</b></a>
  </li>
@@ -45,7 +56,7 @@ body {
 <ul>
    <li>
      <b>kubernetes: </b>
-     <a href="https://github.com/kubernetes/kubernetes/pulls?q=author%3Ajaehnri">kubernetes</a>, 
+     <a href="https://github.com/kubernetes/kubernetes/pulls?q=author%3Ajaehnri">kubernetes</a>,
      <a href="https://github.com/kubernetes/ingress-nginx/pulls?q=author%3Ajaehnri"> ingress-nginx</a>,
      <a href="https://github.com/kubernetes/kubernetes/issues?q=author%3Ajaehnri+label%3Aarea%2Fkubectl"> kubectl</a>,
      <a href="https://github.com/kubernetes-sigs/kpng/pulls?q=author%3Ajaehnri"> kpng</a>
@@ -73,6 +84,87 @@ body {
  <li>linkedin: <a href="https://www.linkedin.com/in/jaehnri/">linkedin.com/in/jaehnri</a> </li>
  <li>op.gg: <a href="https://www.op.gg/summoners/br/JJ-BR1">op.gg/summoners/br/JJ-BR1</a> </li>
 </ul>
+
+<div id="now-playing">
+  <div id="progress-bar"></div>
+  <div id="song-info"></div>
+</div>
+
+<script>
+  let currentTrackData = null;
+  let progressBarInterval;
+  let fetchTimeout; // To prevent rapid refetches
+
+  function fetchNowPlaying() {
+    // Clear any pending timeout to avoid redundant fetches
+    clearTimeout(fetchTimeout);
+
+    fetch('https://website-backend-925461270715.southamerica-east1.run.app/now-playing')
+      .then(response => response.json())
+      .then(data => {
+        const wasPlaying = currentTrackData && currentTrackData.is_playing;
+        currentTrackData = data;
+        updateProgressBar(); // Initial update after fetching
+
+        // Clear any existing interval and start a new one for visual updates
+        clearInterval(progressBarInterval);
+        if (currentTrackData && currentTrackData.is_playing) {
+          progressBarInterval = setInterval(incrementProgressBar, 500); // Update every 0.5 seconds
+        } else {
+          const progressBarDiv = document.getElementById('progress-bar');
+          const songInfoDiv = document.getElementById('song-info');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching now playing data:', error);
+        clearInterval(progressBarInterval); // Stop updates on error
+      });
+  }
+
+  function updateProgressBar() {
+    const progressBarDiv = document.getElementById('progress-bar');
+    const songInfoDiv = document.getElementById('song-info');
+
+    if (currentTrackData) {
+      const progress = currentTrackData.progress_ms;
+      const duration = currentTrackData.song_duration_ms;
+      const artist = currentTrackData.artist;
+      const song = currentTrackData.song;
+
+      const progressBarLength = 100;
+      const playedRatio = progress / duration;
+      const playedChars = Math.round(playedRatio * progressBarLength);
+      const remainingChars = progressBarLength - playedChars;
+      const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
+
+      progressBarDiv.textContent = `[${progressBar}]`;
+      songInfoDiv.textContent = `${artist} - ${song}`;
+    } else {
+      progressBarDiv.textContent = '';
+      songInfoDiv.textContent = '';
+    }
+  }
+
+  function incrementProgressBar() {
+    if (currentTrackData && currentTrackData.is_playing) {
+      currentTrackData.progress_ms += 500; // Increment by 0.5 second (500 ms)
+      updateProgressBar();
+      if (currentTrackData.progress_ms >= currentTrackData.song_duration_ms) {
+        // Song has likely ended, immediately call the server
+        clearInterval(progressBarInterval);
+        // Add a small delay to avoid potential rapid-fire requests if the backend is slow to update
+        fetchTimeout = setTimeout(fetchNowPlaying, 500);
+      }
+    }
+  }
+
+  // Fetch the data initially
+  fetchNowPlaying();
+
+  // Fetch the data every 30 seconds as a fallback/regular update
+  setInterval(fetchNowPlaying, 30000);
+</script>
+
 </blockquote>
 </body>
 </html>
