@@ -7,15 +7,15 @@
 #now-playing {
   margin-top: 20px;
   font-style: italic;
-  text-align: center; /* Center the content within the now-playing div */
+  text-align: center;
 }
 #progress-bar {
-  font-family: monospace; /* Ensures consistent character width */
+  font-family: monospace;
   margin-bottom: 5px;
-  display: inline-block; /* Allows centering */
+  display: inline-block;
 }
 #song-info {
-  display: block; /* Ensures it's on a new line */
+  display: block;
 }
 </style>
 </head>
@@ -87,44 +87,87 @@
 </div>
 
 <script>
+  let currentTrackData = null;
+  let progressBarInterval;
+  let fetchTimeout; // To prevent rapid refetches
+
   function fetchNowPlaying() {
+    // Clear any pending timeout to avoid redundant fetches
+    clearTimeout(fetchTimeout);
+
     fetch('http://localhost:8080/now-playing')
       .then(response => response.json())
       .then(data => {
-        const progressBarDiv = document.getElementById('progress-bar');
-        const songInfoDiv = document.getElementById('song-info');
+        const wasPlaying = currentTrackData && currentTrackData.is_playing;
+        currentTrackData = data;
+        updateProgressBar(); // Initial update after fetching
 
-        if (data.is_playing) {
-          const progress = data.progress_ms;
-          const duration = data.song_duration_ms;
-
-          // Determine the length of the progress bar (adjust as needed)
-          const progressBarLength = 100;
-
-          const playedRatio = progress / duration;
-          const playedChars = Math.round(playedRatio * progressBarLength);
-          const remainingChars = progressBarLength - playedChars;
-
-          const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
-          progressBarDiv.textContent = `[${progressBar}]`;
-          songInfoDiv.textContent = `${data.artist} - ${data.song}`;
+        // Clear any existing interval and start a new one for visual updates
+        clearInterval(progressBarInterval);
+        if (currentTrackData && currentTrackData.is_playing) {
+          progressBarInterval = setInterval(incrementProgressBar, 1000); // Update every 1 second
         } else {
+          const progressBarDiv = document.getElementById('progress-bar');
+          const songInfoDiv = document.getElementById('song-info');
           progressBarDiv.textContent = '';
           songInfoDiv.textContent = 'Not currently playing anything.';
+        }
+
+        // If the song just started playing after being stopped, or a new song started
+        if (!wasPlaying && currentTrackData.is_playing) {
+          // No need to immediately refetch, the regular interval will handle it
         }
       })
       .catch(error => {
         console.error('Error fetching now playing data:', error);
         const nowPlayingDiv = document.getElementById('now-playing');
         nowPlayingDiv.textContent = 'Could not retrieve current song information.';
+        clearInterval(progressBarInterval); // Stop updates on error
       });
   }
 
-  // Fetch the data when the page loads
+  function updateProgressBar() {
+    const progressBarDiv = document.getElementById('progress-bar');
+    const songInfoDiv = document.getElementById('song-info');
+
+    if (currentTrackData && currentTrackData.is_playing) {
+      const progress = currentTrackData.progress_ms;
+      const duration = currentTrackData.song_duration_ms;
+      const artist = currentTrackData.artist;
+      const song = currentTrackData.song;
+
+      const progressBarLength = 100;
+      const playedRatio = progress / duration;
+      const playedChars = Math.round(playedRatio * progressBarLength);
+      const remainingChars = progressBarLength - playedChars;
+      const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
+
+      progressBarDiv.textContent = `[${progressBar}]`;
+      songInfoDiv.textContent = `${artist} - ${song}`;
+    } else {
+      progressBarDiv.textContent = '';
+      songInfoDiv.textContent = 'Not currently playing anything.';
+    }
+  }
+
+  function incrementProgressBar() {
+    if (currentTrackData && currentTrackData.is_playing) {
+      currentTrackData.progress_ms += 1000; // Increment by 1 second (1000 ms)
+      updateProgressBar();
+      if (currentTrackData.progress_ms >= currentTrackData.song_duration_ms) {
+        // Song has likely ended, immediately call the server
+        clearInterval(progressBarInterval);
+        // Add a small delay to avoid potential rapid-fire requests if the backend is slow to update
+        fetchTimeout = setTimeout(fetchNowPlaying, 500);
+      }
+    }
+  }
+
+  // Fetch the data initially
   fetchNowPlaying();
 
-  // Optionally, update the information periodically
-  setInterval(fetchNowPlaying, 2000); // Updated to 2 seconds for smoother updates
+  // Fetch the data every 30 seconds as a fallback/regular update
+  setInterval(fetchNowPlaying, 30000);
 </script>
 
 </blockquote>
