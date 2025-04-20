@@ -1,0 +1,44 @@
+body {
+  background-color: white;
+  font-family: lucida,helvetica,sans-serif;
+  display: flex; /* Enable flexbox for the body */
+  flex-direction: column; /* Stack children vertically */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+#nav {
+  display: flex; /* Add this line to make #nav a flex container */
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 80px;
+}
+
+#nav a {
+  color: black;
+}
+  
+#nav a:hover {
+  color: #555; /* Slightly lighter color on hover */
+}
+
+#now-playing {
+  margin-top: 80px;
+  font-style: italic;
+  text-align: center;
+}
+  
+#progress-bar {
+  font-family: monospace;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+#song-info {
+  display: block;
+  text-align: center; 
+}
