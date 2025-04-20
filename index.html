@@ -1,138 +1,37 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<link rel="icon" href="https://github.com/jaehnri.png">
-<title>J J</title>
-<style type="text/css">
-body {
-  background-color: white;
-  font-family: lucida,helvetica,sans-serif;
-  display: flex; /* Enable flexbox for the body */
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-}
-blockquote {
-  text-align: center;
-  padding: 20px;
-}
-#now-playing {
-  margin-top: 20px;
-  font-style: italic;
-}
-#progress-bar {
-  font-family: monospace;
-  margin-bottom: 5px;
-  margin-top: 5px;
-  display: inline-block;
-}
-#song-info {
-  display: block;
-}
-</style>
+  <link rel="icon" href="https://github.com/jaehnri.png">
+  <title>J J</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-<blockquote>
-<h2>João Henri</h2>
+  <blockquote>
+    <div id="nav">
+      <a href="/"> home </a>
+      <a href="me.html"> about </a>
+      <a href="#"> ideas </a>
+    </div>
 
-<div>
-  <img src="images/chuvi.jpg" height="300"/>
-  <img src="images/euechuvi.jpg" height="300"/>
-  <img src="images/freud.jpg" height="300"/>
-</div>
+    <div id="content">
+      <div id="images">
+        <img src="images/chuvi.jpg" height="300"/>
+        <img src="images/euechuvi.jpg" height="300"/>
+        <img src="images/freud.jpg" height="300"/>
+      </div>
 
-<br> hands always warm, sleepyhead, league player. networks, microservices, observability. <br> <br>
+      <div id="description">
+        hands always warm, sleepyhead, league player, networks, debugging, observability. 
+      </div>
+    </div>
 
-<div id="now-playing">
-  <div id="explanation"></div>
-  <div id="progress-bar"></div>
-  <div id="song-info"></div>
-</div>
+    <div id="now-playing">
+      <div id="explanation"></div>
+      <div id="progress-bar"></div>
+      <div id="song-info"></div>
+    </div>
 
-<script>
-  let currentTrackData = null;
-  let progressBarInterval;
-  let fetchTimeout; // To prevent rapid refetches
-
-  function fetchNowPlaying() {
-    // Clear any pending timeout to avoid redundant fetches
-    clearTimeout(fetchTimeout);
-
-    fetch('https://website-backend-925461270715.southamerica-east1.run.app/now-playing')
-      .then(response => response.json())
-      .then(data => {
-        const wasPlaying = currentTrackData && currentTrackData.is_playing;
-        currentTrackData = data;
-        updateProgressBar(); // Initial update after fetching
-
-        // Clear any existing interval and start a new one for visual updates
-        clearInterval(progressBarInterval);
-        if (currentTrackData && currentTrackData.is_playing) {
-          progressBarInterval = setInterval(incrementProgressBar, 500); // Update every 0.5 seconds
-        } else {
-          const progressBarDiv = document.getElementById('progress-bar');
-          const songInfoDiv = document.getElementById('song-info');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching now playing data:', error);
-        clearInterval(progressBarInterval); // Stop updates on error
-      });
-  }
-
-  function updateProgressBar() {
-    const explanationDiv = document.getElementById('explanation');
-    const progressBarDiv = document.getElementById('progress-bar');
-    const songInfoDiv = document.getElementById('song-info');
-
-    if (currentTrackData) {
-      const progress = currentTrackData.progress_ms;
-      const duration = currentTrackData.song_duration_ms;
-      const artist = currentTrackData.artist;
-      const song = currentTrackData.song;
-
-      const progressBarLength = 100;
-      const playedRatio = progress / duration;
-      const playedChars = Math.round(playedRatio * progressBarLength);
-      const remainingChars = progressBarLength - playedChars;
-      const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
-
-      if (currentTrackData.is_playing) {
-        explanationDiv.textContent = 'Now playing:'        
-      } else {
-        explanationDiv.textContent = 'Last played:'
-      }
-
-      progressBarDiv.textContent = `[${progressBar}]`;
-      songInfoDiv.textContent = `${artist} - ${song}`;
-    } else {
-      explanationDiv.textContent = '';
-      progressBarDiv.textContent = '';
-      songInfoDiv.textContent = '';
-    }
-  }
-
-  function incrementProgressBar() {
-    if (currentTrackData && currentTrackData.is_playing) {
-      currentTrackData.progress_ms += 500; // Increment by 0.5 second (500 ms)
-      updateProgressBar();
-      if (currentTrackData.progress_ms >= currentTrackData.song_duration_ms) {
-        // Song has likely ended, immediately call the server
-        clearInterval(progressBarInterval);
-        // Add a small delay to avoid potential rapid-fire requests if the backend is slow to update
-        fetchTimeout = setTimeout(fetchNowPlaying, 500);
-      }
-    }
-  }
-
-  // Fetch the data initially
-  fetchNowPlaying();
-
-  // Fetch the data every 30 seconds as a fallback/regular update
-  setInterval(fetchNowPlaying, 30000);
-</script>
-
-</blockquote>
+    <script src="script.js"></script>
+  </blockquote>
 </body>
 </html>
