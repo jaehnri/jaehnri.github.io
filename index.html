@@ -6,12 +6,24 @@
 <style type="text/css">
 body {
   background-color: white;
-  font-family: lucida,helvetica,sans-serif
+  font-family: lucida,helvetica,sans-serif;
+  display: flex; /* Enable flexbox for the body */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 100vh; /* Ensure the body takes at least the full viewport height */
+  margin: 0; /* Remove default body margin */
+}
+blockquote {
+  text-align: center; /* Center the text within the blockquote */
+  /* You can also add a max-width here to prevent it from stretching too wide */
+  /* max-width: 800px; */
+  padding: 20px; /* Add some padding around the content */
+  /* Optional: Add a border for visual separation */
+  /* border: 1px solid #ccc; */
 }
 #now-playing {
   margin-top: 20px;
   font-style: italic;
-  text-align: center;
 }
 #progress-bar {
   font-family: monospace;
@@ -35,57 +47,8 @@ body {
 
 <br> hands always warm, sleepyhead, league player. networks, microservices, observability. <br> <br>
 
-<b>Experience:</b>
-<ul>
- <li> <b>work:</b>
-   google;
-   previously at ifood,
-   <a href="https://github.com/rancher/opni/pulls?q=author%3Ajaehnri"><b>suse rancher</b></a>,
-   <a href="https://mentorship.lfx.linuxfoundation.org/project/dd10bf62-53d1-4a96-bea2-65bbb78bd10e"><b>lfx</b></a>
- </li>
- <li><b>academic:</b>
-   universidade de são paulo,
-   <a href="https://sol.sbc.org.br/index.php/sbrc_estendido/article/view/24647">sbrc 2023 paper</a>
- </li>
- <li> <b>resume:</b> <a href="docs/CV_2024.pdf"><b>2024</b>
-  <a></a>
- </li>
-</ul>
-
-<b>Contributions:</b>
-<ul>
-   <li>
-     <b>kubernetes: </b>
-     <a href="https://github.com/kubernetes/kubernetes/pulls?q=author%3Ajaehnri">kubernetes</a>,
-     <a href="https://github.com/kubernetes/ingress-nginx/pulls?q=author%3Ajaehnri"> ingress-nginx</a>,
-     <a href="https://github.com/kubernetes/kubernetes/issues?q=author%3Ajaehnri+label%3Aarea%2Fkubectl"> kubectl</a>,
-     <a href="https://github.com/kubernetes-sigs/kpng/pulls?q=author%3Ajaehnri"> kpng</a>
-   </li>
-   <li>
-     <b>opentelemetry: </b>
-     <a href="https://github.com/open-telemetry/opentelemetry-collector-contrib/pulls?q=author%3Ajaehnri">opentelemetry-collector-contrib</a>
-   </li>
-   <li>
-     <b>coredns:</b>
-     <a href="https://github.com/coredns/coredns/pulls?q=author%3Ajaehnri">coredns</a>
-   </li>
-   <li>
-     <b>grafana:</b>
-     <a href="https://github.com/grafana-operator/grafana-operator/pulls?q=author%3Ajaehnri">grafana-operator</a>,
-     <a href="https://github.com/grafana/grafana-api-golang-client/pulls?q=author%3Ajaehnri">grafana-api-golang-client</a>
-   </li>
-</ul>
-
-
-<b>Contact:</b>
-<ul>
- <li>e-mail: <a href="mailto:contact.joaohenri@gmail.com">contact.joaohenri@gmail.com</a> </li>
- <li>github: <a href="https://github.com/jaehnri">github.com/jaehnri</a> </li>
- <li>linkedin: <a href="https://www.linkedin.com/in/jaehnri/">linkedin.com/in/jaehnri</a> </li>
- <li>op.gg: <a href="https://www.op.gg/summoners/br/JJ-BR1">op.gg/summoners/br/JJ-BR1</a> </li>
-</ul>
-
 <div id="now-playing">
+  <div id="explanation"></div>
   <div id="progress-bar"></div>
   <div id="song-info"></div>
 </div>
@@ -122,6 +85,7 @@ body {
   }
 
   function updateProgressBar() {
+    const explanationDiv = document.getElementById('explanation');
     const progressBarDiv = document.getElementById('progress-bar');
     const songInfoDiv = document.getElementById('song-info');
 
@@ -137,9 +101,16 @@ body {
       const remainingChars = progressBarLength - playedChars;
       const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
 
+      if (currentTrackData.is_playing) {
+        explanationDiv.textContent = 'Now playing:'        
+      } else {
+        explanationDiv.textContent = 'Last played:'
+      }
+
       progressBarDiv.textContent = `[${progressBar}]`;
       songInfoDiv.textContent = `${artist} - ${song}`;
     } else {
+      explanationDiv.textContent = '';
       progressBarDiv.textContent = '';
       songInfoDiv.textContent = '';
     }
