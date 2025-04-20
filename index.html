@@ -125,7 +125,7 @@ body {
     const progressBarDiv = document.getElementById('progress-bar');
     const songInfoDiv = document.getElementById('song-info');
 
-    if (currentTrackData && currentTrackData.is_playing) {
+    if (currentTrackData) {
       const progress = currentTrackData.progress_ms;
       const duration = currentTrackData.song_duration_ms;
       const artist = currentTrackData.artist;
