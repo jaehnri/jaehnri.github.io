@@ -1,0 +1,17 @@
+#now-playing {
+  margin-top: 80px;
+  font-style: italic;
+  text-align: center;
+}
+  
+#progress-bar {
+  font-family: monospace;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+#song-info {
+  display: block;
+  text-align: center; 
+}
