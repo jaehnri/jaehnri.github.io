@@ -1,0 +1,18 @@
+#nav a {
+    color: black;
+  }
+    
+  #nav a:hover {
+    color: #555; /* Slightly lighter color on hover */
+  }
+  
+  #description {
+    margin-top: 5px;
+    text-align: center;
+  }
+   
+  #now-playing {
+    margin-top: 80px;
+    font-style: italic;
+    text-align: center;
+  }

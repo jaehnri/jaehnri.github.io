@@ -1,19 +1,20 @@
-body {
+#page-contents {
   background-color: white;
   font-family: lucida,helvetica,sans-serif;
   display: flex; /* Enable flexbox for the body */
   flex-direction: column; /* Stack children vertically */
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   margin: 0;
 }
 
 #nav {
   display: flex; /* Add this line to make #nav a flex container */
   gap: 30px;
+  font-family: lucida,helvetica,sans-serif;
   align-items: center;
   justify-content: center;
+  padding-top: 160px;
   margin-bottom: 80px;
 }
 
