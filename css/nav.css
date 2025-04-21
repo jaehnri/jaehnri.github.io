@@ -1,7 +1,7 @@
 #nav {
   display: flex;
   gap: 30px;
-  font-family: lucida,helvetica,sans-serif;
+  font-family: lucida, helvetica, sans-serif;
   align-items: center;
   justify-content: center;
   padding-top: 160px;
@@ -11,7 +11,7 @@
 #nav a {
   color: black;
 }
-  
+
 #nav a:hover {
   color: #555;
 }
