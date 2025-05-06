@@ -1,6 +1,6 @@
 #page-contents {
   background-color: white;
-  font-family: lucida,helvetica,sans-serif;
+  font-family: monospace;
   display: flex;
   flex-direction: column;
   justify-content: center;

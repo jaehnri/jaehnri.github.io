@@ -1,7 +1,7 @@
 #nav {
   display: flex;
   gap: 30px;
-  font-family: lucida, helvetica, sans-serif;
+  font-family: monospace;
   align-items: center;
   justify-content: center;
   padding-top: 160px;
