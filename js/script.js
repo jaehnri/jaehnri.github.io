@@ -6,7 +6,7 @@ function fetchNowPlaying() {
   // Clear any pending timeout to avoid redundant fetches
   clearTimeout(fetchTimeout);
 
-  fetch('https://website-backend-925461270715.southamerica-east1.run.app/now-playing')
+  fetch('https://website-backend-925461270715.us-central1.run.app/now-playing')
     .then(response => response.json())
     .then(data => {
       const wasPlaying = currentTrackData && currentTrackData.is_playing;
