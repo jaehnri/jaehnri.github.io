@@ -6,18 +6,87 @@
   <link rel="stylesheet" type="text/css" href="../css/nav.css">
   <link rel="stylesheet" type="text/css" href="../css/now-playing.css">
   <link rel="stylesheet" type="text/css" href="../css/page-contents.css">
+  <style>
+        body {
+            font-family: monospace;
+        }
+
+        #ideas-container {
+            position: relative; /* This is key! It makes this div the positioning context */
+            /* width: 80vw; 80% of viewport width */
+            /* height: 70vh; 70% of viewport height */
+            overflow: hidden; /* Hide ideas that might try to go outside (though our calc prevents this) */
+            margin: 20px; /* Some margin around the container */
+        }
+
+        .idea {
+            position: absolute; /* Positioned relative to #ideas-container */
+            padding: 10px;
+            /* background-color: #e0f7fa; Lighter background */
+            border-radius: 5px;
+            /* box-shadow: 1px 1px 3px rgba(0,0,0,0.1); */
+            white-space: nowrap;
+            /* color: #333; */
+        }
+    </style>
 </head>
 <body>
+  <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apiUrl = 'https://website-backend-925461270715.us-central1.run.app/ideas';
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.ideas && Array.isArray(data.ideas)) {
+                        data.ideas.forEach(ideaObj => {
+                            const ideaText = ideaObj.idea;
+                            if (ideaText) {
+                                const ideaElement = document.createElement('div');
+                                ideaElement.classList.add('idea');
+                                ideaElement.textContent = ideaText;
+
+                                // Randomize position
+                                const maxX = window.innerWidth - ideaElement.offsetWidth;
+                                const maxY = window.innerHeight - ideaElement.offsetHeight;
+
+                                // Ensure position is non-negative
+                                const randomX = Math.max(0, Math.floor(Math.random() * maxX));
+                                const randomY = Math.max(0, Math.floor(Math.random() * maxY));
+
+                                ideaElement.style.left = `${randomX}px`;
+                                ideaElement.style.top = `${randomY}px`;
+
+                                document.body.appendChild(ideaElement);
+                            }
+                        });
+                    } else {
+                        console.error('API response does not contain an "ideas" array:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching ideas:', error);
+                    // Optionally display an error message to the user
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'Failed to load ideas. Please try again later.';
+                    errorMessage.style.color = 'red';
+                    document.body.appendChild(errorMessage);
+                });
+        });
+    </script>
+
   <div id="nav">
       <a href="../"> home </a>
       <a href="../me/"> about </a>
       <a href=""> ideas </a>
   </div>
-  
-  <div id="page-contents">
-    <div id="ideas">
-      <h3>No ideas yet... </h3>
-    </div>
+
+  <div id="ideas-container"> </div>
 
     <div id="now-playing">
         <div id="explanation"></div>
