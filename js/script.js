@@ -1,6 +1,36 @@
 let currentTrackData = null;
 let progressBarInterval;
 let fetchTimeout; // To prevent rapid refetches
+const CACHE_KEY = 'spotify_track_data';
+
+function saveToCache(data) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+      data: data,
+      timestamp: Date.now()
+    }));
+  } catch (e) {
+    console.error('Error saving to cache:', e);
+  }
+}
+
+function loadFromCache() {
+  try {
+    const cachedItem = sessionStorage.getItem(CACHE_KEY);
+    if (cachedItem) {
+      const { data, timestamp } = JSON.parse(cachedItem);
+      if (data && data.is_playing) {
+        // Estimate progress based on elapsed time
+        const elapsed = Date.now() - timestamp;
+        data.progress_ms = Math.min(data.progress_ms + elapsed, data.song_duration_ms);
+      }
+      return data;
+    }
+  } catch (e) {
+    console.error('Error loading from cache:', e);
+  }
+  return null;
+}
 
 function fetchNowPlaying() {
   // Clear any pending timeout to avoid redundant fetches
@@ -9,8 +39,8 @@ function fetchNowPlaying() {
   fetch('https://website-backend-925461270715.us-central1.run.app/now-playing')
     .then(response => response.json())
     .then(data => {
-      const wasPlaying = currentTrackData && currentTrackData.is_playing;
       currentTrackData = data;
+      saveToCache(currentTrackData); // Save to cache
       updateProgressBar(); // Initial update after fetching
 
       // Clear any existing interval and start a new one for visual updates
@@ -18,8 +48,8 @@ function fetchNowPlaying() {
       if (currentTrackData && currentTrackData.is_playing) {
         progressBarInterval = setInterval(incrementProgressBar, 500); // Update every 0.5 seconds
       } else {
-        const progressBarDiv = document.getElementById('progress-bar');
-        const songInfoDiv = document.getElementById('song-info');
+        // If not playing, ensure UI is up to date (updateProgressBar handles clearing or setting "Last played")
+        updateProgressBar();
       }
     })
     .catch(error => {
@@ -40,10 +70,15 @@ function updateProgressBar() {
     const song = currentTrackData.song;
 
     const progressBarLength = 100;
-    const playedRatio = progress / duration;
+    // Handle division by zero or invalid data just in case
+    const playedRatio = duration > 0 ? progress / duration : 0;
     const playedChars = Math.round(playedRatio * progressBarLength);
-    const remainingChars = progressBarLength - playedChars;
-    const progressBar = '='.repeat(playedChars) + '-'.repeat(remainingChars);
+
+    // Clamp values to avoid negative repeat count or out of bounds
+    const safePlayedChars = Math.max(0, Math.min(progressBarLength, playedChars));
+    const safeRemainingChars = progressBarLength - safePlayedChars;
+
+    const progressBar = '='.repeat(safePlayedChars) + '-'.repeat(safeRemainingChars);
 
     if (currentTrackData.is_playing) {
       explanationDiv.textContent = 'Now playing:'
@@ -73,7 +108,17 @@ function incrementProgressBar() {
   }
 }
 
-// Fetch the data initially
+// Try to load from cache first
+const cachedData = loadFromCache();
+if (cachedData) {
+  currentTrackData = cachedData;
+  updateProgressBar();
+  if (currentTrackData.is_playing) {
+     progressBarInterval = setInterval(incrementProgressBar, 500);
+  }
+}
+
+// Fetch the data initially (this will update the cache and UI with fresh data)
 fetchNowPlaying();
 
 // Fetch the data every 30 seconds as a fallback/regular update
