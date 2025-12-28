@@ -1,0 +1,13 @@
+#description {
+  margin-top: 5px;
+  text-align: center;
+}
+#images {
+  text-align: center;
+}
+
+/* From me/index.html */
+body > #page-contents > #content {
+  text-align: left;
+  margin: 0 auto;
+}
